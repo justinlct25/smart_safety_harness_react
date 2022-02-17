@@ -1,0 +1,69 @@
+* {
+  font-family: "Poppins";
+  font-size: 1em;
+  color: #555;
+}
+html {
+  --topNavHeight: 80px;
+  --inputHeight: 40px;
+  max-height: 100vh;
+  overflow-y: scroll;
+}
+body {
+  width: 100vw;
+  height: 100vh;
+}
+.App {
+  text-align: center;
+  flex-direction: column;
+}
+.flex-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.pageContainer {
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 100vw;
+  height: calc(100vh - var(--topNavHeight) - 16px);
+  padding: 32px;
+}
+
+.setLocationButton {
+  background-color: #3f8a62cc;
+  border-radius: 5px;
+  height: 32px;
+  padding: 8px 32px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #eee;
+  cursor: pointer;
+}
+.eachTrackerData {
+  margin: 2px;
+  display: flex;
+  justify-content: space-between;
+  max-width: 320px;
+  border: solid 0.5px #eee3;
+  padding: 16px 0 16px 16px;
+}
+.rowData {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+.rowLeftColumn {
+  width: 150px;
+  text-align: left;
+  color: #eee;
+}
+.rowRightColumn {
+  margin-left: 8px;
+  color: #eee;
+}
+.focusButton {
+  width: 80px;
+}

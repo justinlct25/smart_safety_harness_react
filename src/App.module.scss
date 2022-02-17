@@ -1,0 +1,21 @@
+@use "./utils/utils";
+
+$title-height: 80px;
+
+div#app {
+    @include utils.fill-window;
+    display: flex;
+    text-align: center;
+    flex-direction: column;
+    align-items: stretch;
+
+    > div#title {
+        @include utils.flex-center;
+        width: 100%;
+        height: $title-height;
+    }
+
+    > div:not(#title) {
+        flex: 1;
+    }
+}

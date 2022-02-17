@@ -1,0 +1,82 @@
+<html>
+  <head>
+    <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+    <script
+      src="https://js.api.here.com/v3/3.1/mapsjs-core.js"
+      type="text/javascript"
+      charset="utf-8"
+    ></script>
+    <script
+      src="https://js.api.here.com/v3/3.1/mapsjs-service.js"
+      type="text/javascript"
+      charset="utf-8"
+    ></script>
+    <script
+      src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"
+      type="text/javascript"
+      charset="utf-8"
+    ></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script
+      src="https://stuk.github.io/jszip/dist/jszip.js"
+      type="text/javascript"
+      charset="utf-8"
+    ></script>
+    <script src="heremap.js"></script>
+  </head>
+  <body>
+    <div style="width: 100vw; height: 100vh" id="bodyContainer">
+      <!-- HERE map -->
+      <div style="width: 100%; height: 75%" id="mapContainer"></div>
+
+      <!-- Geolocation indicator -->
+      <div id="getMyLocation">
+        <button id="find-me">Show my location</button><br />
+        <p id="status"></p>
+        <a id="map-link" target="_blank"></a>
+      </div>
+
+    <script>
+      const start = async () => {
+        // create HERE map instance
+        const map = new HereMap("mapContainer");
+
+        // create new fencing area with no location points yet
+        const lineString = new H.geo.LineString();
+
+        // add location points by pushing geo-locations to lineString
+        // the last point must be the same as the first point to close the area
+        lineString.pushPoint({ lat: 22.321818, lng: 114.217446 });
+        lineString.pushPoint({ lat: 22.321016, lng: 114.219203 });
+        lineString.pushPoint({ lat: 22.318816, lng: 114.219695 });
+        lineString.pushPoint({ lat: 22.315332, lng: 114.215614 });
+        lineString.pushPoint({ lat: 22.318498, lng: 114.214241 });
+        lineString.pushPoint({
+          lat: 22.321221925172395,
+          lng: 114.21506421070023,
+        });
+        lineString.pushPoint({ lat: 22.321818, lng: 114.217446 });
+
+        // set the fencing area to make a polygon
+        const polygon = new H.map.Polygon(lineString);
+
+        // draw the polygon on map
+        map.draw(polygon);
+
+        // save the new fencing area to HERE as a new layer
+        const geofenceResponse = await map.uploadGeofence(
+          "1234", // custom layer ID
+          "Nic Secret Layer", // custom layer name
+          map.polygonToWKT(polygon)
+        );
+
+        // console.log(geofenceResponse);
+      };
+
+      start();
+
+      // click to check current geolocation
+      document.querySelector("#find-me").addEventListener("click", geoFindMe);
+    </script>
+  </body>
+</html>

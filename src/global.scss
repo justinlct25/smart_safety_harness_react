@@ -1,0 +1,17 @@
+* {
+  font-family: "Poppins";
+  font-size: 1em;
+  color: #555;
+}
+
+html {
+  --topNavHeight: 80px;
+  --inputHeight: 40px;
+  // max-height: 100vh;
+  // overflow-y: scroll;
+}
+
+body {
+  width: 100vw;
+  height: 100vh;
+}
