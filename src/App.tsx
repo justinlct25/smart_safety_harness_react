@@ -5,55 +5,76 @@ import MQTT, { AsyncMqttClient } from "async-mqtt";
 // import {CircularProgressbar} from "react-circular-progressbar"
 // import "react-circular-progressbar/dist/styles.css"
 import MpuStatusPanel from "./components/MpuStatusPanel"
+import HarnessStatusPanel from './components/HarnessStatusPanel';
+
+
 import { IMpuData, IMpuLockDataInitial, IMpuHarnessDataInitial } from './interface';
-import { CircularProgressbar } from 'react-circular-progressbar';
 
 
 const MQTT_BROKER_URL = "ws://18.162.55.224:9001"
 let mqtt_client:any;
+// let mqtt_client_lock:any;
+// let mqtt_client_harness:any;
 
 
 function App() {
-  const [lockInfo, setLockInfo] = useState<String>("");
-  const [harnessInfo, setHarnessInfo] = useState<String>("");
   const [mpuLockData, setMpuLockData] = useState<IMpuData>(IMpuLockDataInitial);
   const [mpuHarnessData, setMpuHarnessData] = useState<IMpuData>(IMpuHarnessDataInitial);
-
+  const [directionLock, setDirectionLock] = useState<number>(0)
+  const [directionHarness, setDirectionHarness] = useState<number>(0)
+  const [stableLock, setStableLock] = useState<boolean>(false)
+  const [stableHarness, setStableHarness] = useState<boolean>(false)
+  const [harnessStatus, setHarnessStatus] = useState<number>(0)
+  const [twoUp, setTwoUp] = useState<boolean>(false)
   useEffect(()=>{
     const connectMQTT = async () => {
       mqtt_client = await MQTT.connectAsync(MQTT_BROKER_URL);
-      console.log('mqtt connected')
-      mqtt_client.subscribe("/+")
-      console.log('mqtt subscribed')
+      // mqtt_client.subscribe("/lock_harness")
+      mqtt_client.subscribe("/direction/+")
+      mqtt_client.subscribe("/stable/+")
+      console.log("subscribed")
+      // mqtt_client_lock = await MQTT.connectAsync(MQTT_BROKER_URL);
+      // mqtt_client_lock.subscribe("/lock")
+      // mqtt_client_harness = await MQTT.connectAsync(MQTT_BROKER_URL);
+      // mqtt_client_harness.subscribe("/harness")
       onMessageMQTT();
     }
     connectMQTT();
   }, [])
+
+  useEffect(()=>{
+    if(directionLock==1){
+      if(stableLock&&!stableHarness){
+        setHarnessStatus(2); // Locked
+      }else if(!stableLock){
+        if(directionHarness==1){
+          setHarnessStatus(1); // Hanged on Person
+        }else{
+          setHarnessStatus(0);
+        }
+      }
+    }else{
+      setHarnessStatus(0); // Unlocked
+    }
+  },[directionLock, directionHarness, stableLock, stableHarness])
   
   const onMessageMQTT = () => {
     try{
-      console.log('mqtt on')
       mqtt_client.on("message",(topic:any, payload:any) => {
-        let payloadArray = payload.toString().split(", ")
         console.log(topic)
         switch(topic){
-          case "/lock":
-            try{
-              setLockInfo(payload.toString());
-              setMpuLockData({mpuData:{name:topic.replace('/',''), acc_x: payloadArray[0], acc_y: payloadArray[1], acc_z: payloadArray[2]}})
-            }catch(e){
-              console.log(e)
-            }
+          case "/direction/lock":
+            setDirectionLock(Number(payload));
             break;
-          case "/harness":
-            try{
-              setHarnessInfo(payload.toString());
-            }catch(e){
-              console.log(e)
-            }
+          case "/direction/harness":
+            setDirectionHarness(Number(payload));
             break;
-          default:
-            console.log("none")
+          case "/stable/lock":
+            setStableLock(Number(payload)==1?true:false);
+            break;
+          case "/stable/harness":
+            setStableHarness(Number(payload)==1?true:false);
+            break;
         }
       })
     }catch(e){
@@ -64,10 +85,17 @@ function App() {
   return (
     <div className="App">
       <div className="App-header">
-        <div>Lock Info: {lockInfo}</div>
-        <div>Harness Info: {harnessInfo}</div>
-        <MpuStatusPanel mpuData={mpuLockData.mpuData} />
-        <MpuStatusPanel mpuData={mpuHarnessData.mpuData} />
+        {/* <MpuStatusPanelLock mpuData={mpuLockData.mpuData} /> */}
+        {/* <MpuStatusPlanePanelLock mpuData={mpuLockData.mpuData} />
+        <MpuStatusPlanePanelHarness mpuData={mpuHarnessData.mpuData} /> */}
+        {/* <div>Lock: {mpuLockData.mpuData.acc_x},{mpuLockData.mpuData.acc_y},{mpuLockData.mpuData.acc_z}</div> */}
+        {/* <div>Harness: {mpuHarnessData.mpuData.acc_x},{mpuHarnessData.mpuData.acc_y},{mpuHarnessData.mpuData.acc_z}</div> */}
+        {/* <div>Lock Direction: {directionLock}</div> */}
+        {/* <div>Harness Direction: {directionHarness}</div> */}
+        {/* <div>onLocked: {twoUp.toString()}</div> */}
+        <HarnessStatusPanel connected={true} statusId={harnessStatus} />
+        <MpuStatusPanel mpu="Lock" connected={true} direction={directionLock} stable={stableLock} />
+        <MpuStatusPanel mpu="Harness" connected={true} direction={directionHarness} stable={stableHarness} />
       </div>
     </div>
   );

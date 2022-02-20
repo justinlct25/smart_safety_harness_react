@@ -25,3 +25,28 @@ export const IMpuHarnessDataInitial:IMpuData = {
     }
 }
 
+export interface IMpuStatus {
+    mpu: String,
+    connected: boolean,
+    stable: boolean,
+    direction: number
+}
+
+export const LockMpuStatusInitial:IMpuStatus = {
+    mpu: "Lock",
+    connected: false,
+    stable: false,
+    direction: 0
+}
+
+export const HarnessMpuStatusInitial:IMpuStatus = {
+    mpu: "Harness",
+    connected: false,
+    stable: false,
+    direction: 0
+}
+
+export interface IHarnessStatus {
+    connected: boolean,
+    statusId: number
+}
