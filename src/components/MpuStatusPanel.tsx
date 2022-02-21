@@ -3,11 +3,12 @@
 
 import React from 'react'
 import { IMpuStatus } from '../interface'
+import "../styles.css"
 
 const MpuStatusPanel = (props: IMpuStatus) => {
 
     return (
-        <div>
+        <div className="mpuStatusPanelContainer">
             <div>{props.mpu}</div>
             <div>Connected: {props.connected?"true":"false"}</div>
             <div>Direction: {props.direction}</div>

@@ -1,6 +1,21 @@
+html {
+    --boxShadow: 0 4px 4px 0px #0004;
+}
+
+.outerContainer {
+    background-color: #282c34;
+    /* background-color: white; */
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+    font-size: calc(10px + 2vmin);
+    color: white;
+}
+
 .mpuStatusPanelContainer {
-    display: flex;
-    flex-direction: row;
+    margin: 20px;
+    /* display: flex; */
+    /* flex-direction: row; */
     width: 100%;
     justify-content: space-around;
 }
@@ -10,3 +25,41 @@
     height: 250px;
     margin: 10px;
 }
+
+.harnessStatusPanelContainer {
+    margin: 40px;
+    text-align: center;
+    height: 100%;
+}
+
+.safetyPlatformInfoContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+}
+
+.personDetectionContainer {
+    width: 50%;
+    background-color: black;
+}
+
+.safetyHarnessContainer {
+    width: 50%;
+}
+
+.safetyHarnessInfo {
+    height: 100px;
+}
+
+.safetyHarness {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-around;
+    background: rgba(255, 255, 255, 0.123);
+    color: white;
+    border-radius: 50px;
+    box-shadow: var(--boxShadow);
+}
+
+.mpuContainer {}

@@ -1,5 +1,6 @@
 import React from 'react'
 import { IHarnessStatus } from '../interface'
+import "../styles.css"
 
 const HarnessStatus:any = {
     0: "Unlocked",
@@ -7,15 +8,14 @@ const HarnessStatus:any = {
     2: "Locked",
 }
 
-const HarnessStatusPanel = (props: IHarnessStatus) => {
+const SafetyHarnessStatusPanel = (props: IHarnessStatus) => {
 
     return (
-        <div>
-            <div>Harness Status</div>
-            <div>Connected: {props.connected}</div>
+        <div className="harnessStatusPanelContainer">
+            {/* <div>Connected: {props.connected?"true":"false"}</div> */}
             <div>Status: {HarnessStatus[props.statusId]}</div>
         </div>
     )
 }
 
-export default HarnessStatusPanel
+export default SafetyHarnessStatusPanel
