@@ -26,7 +26,29 @@ html {
     margin: 10px;
 }
 
-.harnessStatusPanelContainer {
+.harnessStatusPanelContainerDisconnected {
+    background-color: rgba(0, 0, 0, 0.245);
+    margin: 40px;
+    text-align: center;
+    height: 100%;
+}
+
+.harnessStatusPanelContainerUnlocked {
+    background-color: rgba(255, 0, 0, 0.492);
+    margin: 40px;
+    text-align: center;
+    height: 100%;
+}
+
+.harnessStatusPanelContainerHanged {
+    background-color: rgba(238, 255, 0, 0.457);
+    margin: 40px;
+    text-align: center;
+    height: 100%;
+}
+
+.harnessStatusPanelContainerLocked {
+    background-color: rgba(1, 255, 6, 0.526);
     margin: 40px;
     text-align: center;
     height: 100%;
@@ -57,6 +79,50 @@ html {
     width: 100%;
     justify-content: space-around;
     background: rgba(255, 255, 255, 0.123);
+    color: white;
+    border-radius: 50px;
+    box-shadow: var(--boxShadow);
+}
+
+.safetyHarnessDisconnected {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-around;
+    background: rgba(255, 255, 255, 0.123);
+    color: white;
+    border-radius: 50px;
+    box-shadow: var(--boxShadow);
+}
+
+.safetyHarnessUnlocked {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-around;
+    background: rgba(255, 0, 0, 0.492);
+    color: white;
+    border-radius: 50px;
+    box-shadow: var(--boxShadow);
+}
+
+.safetyHarnessHanged {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-around;
+    background: rgba(238, 255, 0, 0.457);
+    color: white;
+    border-radius: 50px;
+    box-shadow: var(--boxShadow);
+}
+
+.safetyHarnessLocked {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    justify-content: space-around;
+    background: rgba(1, 255, 6, 0.526);
     color: white;
     border-radius: 50px;
     box-shadow: var(--boxShadow);

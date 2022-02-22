@@ -15,6 +15,19 @@ import { IMpuData, IMpuLockDataInitial, IMpuHarnessDataInitial } from './interfa
 const MQTT_BROKER_URL = "ws://18.162.55.224:9001"
 let mqtt_client:any;
 
+export const SAFETY_HARNESS_STATUS = {
+  "UNLOCKED": 0,
+  "HANGED": 1,
+  "LOCKED": 2
+}
+
+export const D1_STABLE_STATUS = { // direction 1 of mpus
+  "NOTD1": "NOTD1",
+  "MOVE": "MOVE",
+  "STABLE": "STABLE",
+  "LOCKED": "LOCKED"
+}
+
 function App() {
   const [connectedLock, setConnectedLock] = useState<boolean>(false)
   const [connectedHarness, setConnectedHarness] = useState<boolean>(false)
@@ -43,24 +56,74 @@ function App() {
     connectMQTT();
   }, [])
 
-  const D1_STABLE_STATUS = { // direction 1 of mpus
-    "NOTD1": "NOTD1",
-    "MOVE": "MOVE",
-    "STABLE": "STABLE",
-    "LOCKED": "LOCKED"
-  }
+  
   const SYNC_ARRAY_LENGTH = 10
 
-  let lockCheckTimeout:any;
+  // let lockCheckTimeout:any;
 
-  const setCheckStableLockTimeout = () => {
+  // const setCheckStableLockTimeout = () => {
+  //   lockCheckTimeout = !lockCheckTimeout && setTimeout(() => {
+  //     if(tempStableLock){
+  //       setSafetyHarnessStatus(SAFETY_HARNESS_STATUS["LOCKED"]);                                              // Status: Locked
+  //     }
+  //     setTempStableLock(false);
+  //   }, 3000)
+  // }
+
+  let lockCheckTimeout: any;
+
+  const clearStableLockCheckIntervalTimeout = () => {
     lockCheckTimeout = !lockCheckTimeout && setTimeout(() => {
       if(tempStableLock){
-        setSafetyHarnessStatus(2);                                              // Status: Locked
+        setSafetyHarnessStatus(SAFETY_HARNESS_STATUS["LOCKED"]);                                              // Status: Locked
       }
       setTempStableLock(false);
     }, 3000)
   }
+
+  let lockCheckInterval: any;
+  let lockCheckIntervalCount = 0;
+
+  const setStableLockCheckInterval = () => {
+    lockCheckInterval = !lockCheckInterval && setInterval(() => {
+      if(!tempStableLock){
+        clearStableLockCheckInterval();
+      }
+      if(++lockCheckIntervalCount === 6){
+        setSafetyHarnessStatus(SAFETY_HARNESS_STATUS["LOCKED"]);
+        clearStableLockCheckInterval();
+      }
+    }, 500)
+  }
+
+  const clearStableLockCheckInterval = () => {
+    clearInterval(lockCheckInterval);
+    lockCheckIntervalCount = 0;
+  }
+
+  let directionNotVerticalCheckInterval: any;
+  let directionNotVerticalCheckIntervalCount = 0;
+
+  const setDirectionNotVerticalCheckInterval = () => {
+    directionNotVerticalCheckInterval = !directionNotVerticalCheckInterval && setInterval(() => {
+      if(!(directionLock&&directionHarness)){
+        clearDirectionNotVerticalCheckInterval();
+      }
+      if(++directionNotVerticalCheckInterval === 5){
+          if(safetyHarnessStatus == SAFETY_HARNESS_STATUS["HANGED"]){
+            setSafetyHarnessStatus(SAFETY_HARNESS_STATUS["UNLOCKED"])
+          }
+          clearDirectionNotVerticalCheckInterval();
+        }
+      
+    }, 500)
+  }
+
+  const clearDirectionNotVerticalCheckInterval = () => {
+    clearInterval(directionNotVerticalCheckInterval);
+    directionNotVerticalCheckIntervalCount = 0;
+  }
+
 
   useEffect(()=>{
     // if(directionLock == 1){
@@ -79,17 +142,21 @@ function App() {
     if(directionLock == 1){                 // lock vertical direction
       if(stableLock && !stableHarness){     // lock stable & harness moved
         setTempStableLock(true);
-        // setSafetyHarnessStatus(2);                                              // Status: Locked
-        setCheckStableLockTimeout();
+        // setCheckStableLockTimeout();
+        setStableLockCheckInterval();
       }else if(!stableLock){                // lock moved
         setTempStableLock(false);
-        setSafetyHarnessStatus(0);                                              // Status: Unlocked
-        clearTimeout(lockCheckTimeout);
+        if(safetyHarnessStatus != SAFETY_HARNESS_STATUS["HANGED"] ){ 
+          setSafetyHarnessStatus(SAFETY_HARNESS_STATUS["UNLOCKED"]);                                              // Status: Unlocked
+        }
+        // clearTimeout(lockCheckTimeout);
+        clearStableLockCheckInterval();
       }
     }else{                                  // harness 
       setTempStableLock(false);
-      setSafetyHarnessStatus(0); // Unlocked
-      clearTimeout(lockCheckTimeout);
+      setSafetyHarnessStatus(SAFETY_HARNESS_STATUS["UNLOCKED"]); // Unlocked
+      // clearTimeout(lockCheckTimeout);
+      clearStableLockCheckInterval();
     }
   },[directionLock, directionHarness, stableLock, stableHarness])
 
@@ -132,12 +199,12 @@ function App() {
         setHarnessStatusArray((array: any) => [...array, D1_STABLE_STATUS["LOCKED"]])
         break;
     }
-    console.log("lock & harness array")
-    console.log(lockStatusArray);
-    console.log(harnessStatusArray);
+    // console.log("lock & harness array")
+    // console.log(lockStatusArray);
+    // console.log(harnessStatusArray);
   }
 
-  const calculateSyncPercentage = () => {
+  const determineHangOnPerson = () => {
     let sync_count = 0;
     let move_count = 0;
     for (let i=0; i<SYNC_ARRAY_LENGTH; i++){
@@ -157,20 +224,25 @@ function App() {
     console.log("sync & move ratio")
     console.log(sync_ratio)
     console.log(move_ratio)
-    if (sync_ratio > 0.7 && move_ratio > 0.2){
-      if (safetyHarnessStatus == 0){
-        setSafetyHarnessStatus(1);
+    if (sync_ratio > 0.6 && move_ratio > 0.1){
+      if (safetyHarnessStatus == SAFETY_HARNESS_STATUS["UNLOCKED"]){
+        setSafetyHarnessStatus(SAFETY_HARNESS_STATUS["HANGED"]);
       }
     }
   }
+
+  
 
   let syncInterval:any;
 
   const setUpdateMpuSyncArrayInterval = () => {
     syncInterval = !syncInterval && setInterval(() => {
       updateMpuSyncArray();
-      calculateSyncPercentage();
-    }, 1000)
+      determineHangOnPerson();
+      if(!(directionLock==1&&directionHarness==1)){
+        setDirectionNotVerticalCheckInterval()
+      }
+    }, 500)
   }
 
   useEffect(()=>{
@@ -206,8 +278,10 @@ function App() {
   
   const onMessageMQTT = () => {
     try{
+      // setConnectedLock(false);
+      // setConnectedHarness(false);
       mqtt_client.on("message",(topic:any, payload:any) => {
-        // console.log(topic)
+        console.log(topic)
         switch(topic){
           case "/direction/lock":
             setDirectionLock(Number(payload));
@@ -239,7 +313,10 @@ function App() {
           {/* <div className="personDetectionContainer"></div> */}
           <div className="safetyHarnessContainer">
             <div className="safetyHarnessInfo"></div>
-            <div className="safetyHarness">
+            <div className={!(connectedLock&&connectedHarness)?"safetyHarnessDisconnected":
+                            safetyHarnessStatus==SAFETY_HARNESS_STATUS["UNLOCKED"]?"safetyHarnessUnlocked":
+                            safetyHarnessStatus==SAFETY_HARNESS_STATUS["HANGED"]?"safetyHarnessHanged":
+                            "safetyHarnessLocked"}>
               <SafetyHarnessStatusPanel connected={connectedLock&&connectedHarness} statusId={safetyHarnessStatus} />
               <div className="mpuContainer">
                 <MpuStatusPanel mpu="Lock" connected={connectedLock} direction={directionLock} stable={stableLock} />
