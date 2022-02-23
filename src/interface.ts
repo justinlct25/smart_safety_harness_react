@@ -47,6 +47,9 @@ export const HarnessMpuStatusInitial:IMpuStatus = {
 }
 
 export interface IHarnessStatus {
+    mpuNo: number,
+    mpuId: string,
     connected: boolean,
-    statusId: number
+    statusId: number,
+    idle: boolean
 }
