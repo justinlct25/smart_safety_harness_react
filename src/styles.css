@@ -13,17 +13,20 @@ html {
 }
 
 .mpuStatusContainer {
-    margin: 20px;
+    /* margin: 20px; */
     display: flex;
     flex-direction: row;
-    width: 240px;
+    width: 200px;
     justify-content: space-around;
     align-items: center;
+    padding: 5px;
 }
 
 .mpuStatus {
-    width: 60%;
-    font-size: 20px;
+    width: 50%;
+    font-size: 15px;
+    display: flex;
+    justify-content: flex-end;
 }
 
 .mpuRatioCircular {
@@ -33,7 +36,7 @@ html {
 }
 
 .harnessStatusContainer {
-    width: 60%;
+    width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-around;
@@ -57,15 +60,31 @@ html {
     background-color: #1a1d22;
     margin: 10px;
     padding: 5px;
-    width: 200px;
+    width: 80%
 }
 
 .harnessStatusHanged {
-    background-color: #1a1d22;
+    background-color: rgb(180, 102, 0);
     margin: 10px;
     padding: 5px;
-    width: 200px;
-    font-size: 20px;
+    width: 80%;
+    border-radius: 20px;
+}
+
+.harnessStatusLocked {
+    background-color: green;
+    margin: 10px;
+    padding: 5px;
+    width: 80%;
+    border-radius: 20px;
+}
+
+.harnessStatusUnlocked {
+    background-color: rgb(163, 0, 0);
+    margin: 10px;
+    padding: 5px;
+    width: 80%;
+    border-radius: 20px;
 }
 
 .harnessStatusPanelContainerDisconnected {
@@ -100,6 +119,7 @@ html {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
+    position: relative;
 }
 
 .personDetectionContainer {
@@ -112,6 +132,8 @@ html {
 
 .safetyHarnessContainer {
     width: 40%;
+    max-height: 74vh;
+    /* overflow-y: scroll; */
     padding: 0px 20px 20px 20px;
     margin: 20px;
     /* background: rgba(255, 255, 255, 0.123); */
@@ -119,11 +141,25 @@ html {
     border-radius: 20px;
 }
 
+.harnessStatusContainer {
+    overflow-y: scroll;
+}
+
+.idleContainer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    /* transform: translate(-50%, -50%); */
+}
+
 .harnessIdle {
+    margin: 40px;
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 60px;
+    /* width: 60px; */
+    width: "max-content";
+    padding: 0px 10px 0px 10px;
     background-color: gray;
     border-radius: 20px;
     height: max-content;
@@ -139,19 +175,25 @@ html {
 }
 
 .safetyHarness {
+    position: relative;
     display: flex;
-    flex-direction: row;
-    width: 100%;
-    justify-content: space-around;
-    background: rgba(255, 255, 255, 0.123);
+    flex-direction: column;
+    /* width: 100%; */
+    width: 450px;
+    height: 600px;
+    padding: 20px;
+    /* justify-content: center; */
+    align-items: center;
+    /* background: rgba(255, 255, 255, 0.123); */
+    background-color: #2a2f38;
     color: white;
     border-radius: 20px;
     box-shadow: var(--boxShadow);
 }
 
 .safetyHarnessDisconnected {
-    display: flex;
-    flex-direction: row;
+    /* display: flex;
+    flex-direction: row; */
     width: 100%;
     justify-content: space-around;
     background: rgba(255, 255, 255, 0.123);
@@ -163,8 +205,8 @@ html {
 }
 
 .safetyHarnessUnlocked {
-    display: flex;
-    flex-direction: row;
+    /* display: flex;
+    flex-direction: row; */
     width: 100%;
     justify-content: space-around;
     background: rgba(255, 0, 0, 0.492);
@@ -175,8 +217,8 @@ html {
 }
 
 .safetyHarnessHanged {
-    display: flex;
-    flex-direction: row;
+    /* display: flex;
+    flex-direction: row; */
     width: 100%;
     justify-content: space-around;
     background: rgba(238, 255, 0, 0.457);
@@ -187,8 +229,8 @@ html {
 }
 
 .safetyHarnessLocked {
-    display: flex;
-    flex-direction: row;
+    /* display: flex;
+    flex-direction: row; */
     width: 100%;
     justify-content: space-around;
     background: rgba(1, 255, 6, 0.526);
@@ -198,11 +240,34 @@ html {
     /* box-shadow: var(--boxShadow); */
 }
 
+.safetyHarnessFlex {
+    display: flex;
+    flex-direction: row;
+}
+
+.safetyHarnessStatus {
+    display: flex;
+    flex-direction: row;
+    position: relative;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    height: 300px;
+}
+
 .mpuLogo {
-    height: 50px;
-    width: 50px;
+    height: 40px;
+    width: 40px;
     color: white;
     filter: invert(100%)
+}
+
+.mpuContainer {
+    position: absolute;
+    bottom: 0;
+    right: 0
+    /* display: flex; */
+    /* flex-direction: row; */
 }
 
 .directionLogo {
@@ -217,7 +282,8 @@ img {
 }
 
 .harnessNo {
-    font-size: 35px;
+    font-size: 40px;
+    margin-bottom: 5px;
 }
 
 .harnessId {
@@ -294,4 +360,20 @@ img {
     padding: 5px;
     background: red;
     border-radius: 10px;
+}
+
+.harnessStatusPng {
+    /* filter: invert(100%); */
+    filter: brightness(600%);
+    height: 250px;
+    /* padding-left: 20px */
+    /* width: 400px; */
+}
+
+.circularContainer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 350px;
 }

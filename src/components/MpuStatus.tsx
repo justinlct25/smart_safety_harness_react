@@ -14,8 +14,8 @@ const MpuStatus = (props: IMpuStatus) => {
     return (
         <div className="mpuStatusContainer">
             {/* <div>{props.mpu}</div> */}
-            {props.mpu=="Hook"?<img className="mpuLogo" src={hookSvg} />:<img className="mpuLogo" src={harnessSvg} />}
             <div className="mpuStatus">{props.connected?props.stable?"Stable":"Moving":"Disconnected"}</div>
+            {props.mpu=="Hook"?<img className="mpuLogo" src={hookSvg} />:<img className="mpuLogo" src={harnessSvg} />}
             <div>{props.direction==1?<img className="directionLogo" src={chevronUpSvg} />:props.direction==2?<img className="directionLogo" src={chevronDownSvg} />:<img className="directionLogo" src={hyphenSvg} />}</div>
             {/* <div>Stable: {props.stable?1:0}</div> */}
         </div>

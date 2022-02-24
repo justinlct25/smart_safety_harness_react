@@ -12,7 +12,7 @@ function App() {
       <div className="outerContainer">
         <MuselabsNavbar />
         <div className="safetyPlatformInfoContainer">
-          <PersonDetectionPanel />
+          {/* <PersonDetectionPanel /> */}
           <SafetyHarnessPanel />
         </div>
       </div>

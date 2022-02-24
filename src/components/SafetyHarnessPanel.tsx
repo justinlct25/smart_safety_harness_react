@@ -3,6 +3,11 @@ import MQTT, { AsyncMqttClient } from "async-mqtt";
 import MpuStatus from "./MpuStatus";
 import SafetyHarnessStatus from './SafetyHarnessStatus';
 import '../styles.css'
+import lockedPng from '../media/locked.png'
+import hangedPng from '../media/hanged.png'
+import unlockedPng from '../media/unlocked.png'
+import {buildStyles, CircularProgressbar, CircularProgressbarWithChildren} from "react-circular-progressbar"
+import "react-circular-progressbar/dist/styles.css"
 
 
 const MQTT_BROKER_URL = "ws://18.162.55.224:9001"
@@ -21,6 +26,12 @@ export const SAFETY_HARNESS_STATUS = {
     "LOCKED": "LOCKED"
   }
 
+  const HarnessStatus:any = {
+    0: "Unlocked",
+    1: "Hanged on Person",
+    2: "Locked",
+}
+
 const SafetyHarnessPanel = () => {
     const [connectedLock, setConnectedLock] = useState<boolean>(false)
     const [connectedHarness, setConnectedHarness] = useState<boolean>(false)
@@ -34,8 +45,15 @@ const SafetyHarnessPanel = () => {
     const [lockStatusTimeoutExist, setLockStatusTimeoutExist] = useState<boolean>(false)
     const [cancelHangedStatusByDirectionTimeoutExist, setCancelHangedStatusByDirectionTimeoutExist] = useState<boolean>(false)
     const [cancelHangedStatusBySyncRatioTimeoutExist, setCancelHangedStatusBySyncRatioTimeoutExist] = useState<boolean>(false)
+    const [lockedStatusCountdown, setLockedStatusCountdown] = useState<number>(0)
+    const [lockedStatusCountdownRatio, setLockedStatusCountdownRatio] = useState<number>(0)
+    const [hangedStatusSyncRatio, setHangedStatusSyncRatio] = useState<number>(0)
+    const [hangedStatusMoveRatio, setHangedStatusMoveRatio] = useState<number>(0)
+    const [syncIdleCountdown, setSyncIdleCountdown] = useState<number>(0)
 
     const setLockStatusTimeoutRef:any = useRef(null);
+    const setLockStatusIntervalRef:any = useRef(null);
+    const setLockStatusSecIntervalRef:any = useRef(null);
     const cancelHangedStatusByDirectionTimeoutRef:any = useRef(null);
     const cancelHangedStatusBySyncRatioTimeoutRef:any = useRef(null);
   
@@ -59,10 +77,24 @@ const SafetyHarnessPanel = () => {
   
     const setLockStatusTimeout = (time:number) => {
     //   lockCheckTimeout = !lockCheckTimeout && setTimeout(() => {
-        setLockStatusTimeoutRef.current = setTimeout(()=> {
+      let ratioPerCountdown = 500/time
+      if(safetyHarnessStatus!=SAFETY_HARNESS_STATUS["LOCKED"]){
+        setLockedStatusCountdownRatio(0)
+        setLockedStatusCountdown(3)
+      }
+      setLockStatusIntervalRef.current = setInterval(() => {
+        setLockedStatusCountdownRatio(ratio => (ratio + ratioPerCountdown))
+      },500)
+      setLockStatusSecIntervalRef.current = setInterval(() => {
+        setLockedStatusCountdown(sec => (sec - 1))
+      },1000)
+        setLockStatusTimeoutRef.current = setTimeout(() => {
             setSafetyHarnessStatus(SAFETY_HARNESS_STATUS["LOCKED"]);                                              // Status: Locked
             setLockStatusTimeoutExist(false)
             clearCancelHangedStatusByDirectionTimeout("");
+            clearInterval(setLockStatusIntervalRef.current)
+            clearInterval(setLockStatusSecIntervalRef.current)
+            setLockedStatusCountdown(3)
             }, time)
         setLockStatusTimeoutExist(true)
     }
@@ -70,7 +102,13 @@ const SafetyHarnessPanel = () => {
     const clearLockStatusTimeout = (reason: string) => {
         // console.log(reason)
         clearTimeout(setLockStatusTimeoutRef.current);
+        clearInterval(setLockStatusIntervalRef.current)
+        clearInterval(setLockStatusSecIntervalRef.current)
         setLockStatusTimeoutExist(false)
+        if(safetyHarnessStatus!=SAFETY_HARNESS_STATUS["LOCKED"]){
+          setLockedStatusCountdownRatio(0)
+          setLockedStatusCountdown(3)
+        }
     }
 
     const setCancelHangedStatusByDirectionTimeout = (time: number) => {
@@ -115,15 +153,21 @@ const SafetyHarnessPanel = () => {
         }else if(!stableLock){                // lock moved
           if(safetyHarnessStatus != SAFETY_HARNESS_STATUS["HANGED"] ){ 
             setSafetyHarnessStatus(SAFETY_HARNESS_STATUS["UNLOCKED"]);                                              // Status: Unlocked
+            setLockedStatusCountdownRatio(0);
+            setLockedStatusCountdown(3)
           }
-          clearLockStatusTimeout("clear timeout(!stableLock)");
+          clearLockStatusTimeout("clear set locked timeout(!stableLock)");
         }
         if(stableHarness){                  // harness moved
                 clearLockStatusTimeout("clear timeout (stableHarness)")
         }
       }else{                                  // harness 
-        // setSafetyHarnessStatus(SAFETY_HARNESS_STATUS["UNLOCKED"]); // Unlocked
-        clearLockStatusTimeout("clear timeout (directionLock!=1)")
+        if(safetyHarnessStatus == SAFETY_HARNESS_STATUS["LOCKED"]){
+          setSafetyHarnessStatus(SAFETY_HARNESS_STATUS["UNLOCKED"]); // Unlocked
+          setLockedStatusCountdownRatio(0);
+          setLockedStatusCountdown(3);
+        }
+        clearLockStatusTimeout("clear set locked timeout (directionLock!=1)")
       }
       if(directionLock==1 && directionHarness==1){ // for determining hanged on person status
               clearCancelHangedStatusByDirectionTimeout("");
@@ -187,17 +231,23 @@ const SafetyHarnessPanel = () => {
           if((lockStatusArray[i]!=D1_STABLE_STATUS["NOTD1"]&&harnessStatusArray[i]!=D1_STABLE_STATUS["NOTD1"])&&(lockStatusArray[i]!=D1_STABLE_STATUS["LOCKED"]||harnessStatusArray[i]!=D1_STABLE_STATUS["LOCKED"])){
             if(lockStatusArray[i]==harnessStatusArray[i]){
               if(lockStatusArray[i]==D1_STABLE_STATUS["MOVE"]){
-                move_count++;
+                  move_count++;
               }
               sync_count++;
             }
           }
         }
       }
+      // if(syncIdleCountdown==0 && move_count==0){
+      //   setSyncIdleCountdown(SYNC_ARRAY_LENGTH)
+      // }
+      // console.log(syncIdleCountdown)
       let sync_ratio = sync_count/SYNC_ARRAY_LENGTH;
       let move_ratio = move_count/SYNC_ARRAY_LENGTH;
+      setHangedStatusSyncRatio(sync_ratio);
+      setHangedStatusMoveRatio(move_ratio);
     //   console.log("sync & move ratio")
-    //   console.log(sync_ratio)
+      // console.log(sync_ratio)
     //   console.log(move_ratio)
       if (sync_ratio > 0.6 && move_ratio > 0.1){
         if (safetyHarnessStatus == SAFETY_HARNESS_STATUS["UNLOCKED"]){
@@ -207,7 +257,7 @@ const SafetyHarnessPanel = () => {
       }
       if(sync_ratio <=0.6){
           if (safetyHarnessStatus == SAFETY_HARNESS_STATUS["HANGED"]){
-              if(!cancelHangedStatusByDirectionTimeoutExist){
+              if(!cancelHangedStatusBySyncRatioTimeoutExist){
                   setCancelHangedStatusBySyncRatioTimeout(2000)
               }
           }
@@ -286,17 +336,53 @@ const SafetyHarnessPanel = () => {
     return (
         <div className="safetyHarnessContainer">
             <div className="safetyHarnessInfo"><b>Safety Harness Status</b></div>
-            <div className={!(connectedLock||connectedHarness)?"safetyHarnessDisconnected":
+            <div className="safetyHarness" >
+            {/* <div className={!(connectedLock||connectedHarness)?"safetyHarnessDisconnected":
                             safetyHarnessStatus==SAFETY_HARNESS_STATUS["UNLOCKED"]?"safetyHarnessUnlocked":
                             safetyHarnessStatus==SAFETY_HARNESS_STATUS["HANGED"]?"safetyHarnessHanged":
-                            "safetyHarnessLocked"}>
-              <SafetyHarnessStatus mpuNo={1} mpuId={"LA-EP02-01"} connected={connectedLock&&connectedHarness} statusId={safetyHarnessStatus} idle={stableLock&&stableHarness} />
-              <div className="mpuContainer">
-                <MpuStatus mpu="Hook" connected={connectedLock} direction={directionLock} stable={stableLock} />
-                <MpuStatus mpu="Harness" connected={connectedHarness} direction={directionHarness} stable={stableHarness} />
-              </div>
+                            "safetyHarnessLocked"}> */}
+                <div className="safetyHarnessFlex">
+                    <SafetyHarnessStatus mpuNo={1} mpuId={"LA-EP02-01"} connected={connectedLock&&connectedHarness} statusId={safetyHarnessStatus} idle={stableLock&&stableHarness} />
+                </div>
+                <div className={safetyHarnessStatus==1?"harnessStatusHanged":safetyHarnessStatus==2?"harnessStatusLocked":"harnessStatusUnlocked"}>
+                    <b>{connectedLock&&connectedHarness?HarnessStatus[safetyHarnessStatus]:"Disconnected"}</b>
+                </div>
+                <div className="safetyHarnessStatus">
+                  <div className="circularContainer">
+                    <CircularProgressbarWithChildren
+                      value={safetyHarnessStatus!=SAFETY_HARNESS_STATUS["HANGED"]?(hangedStatusMoveRatio!=0?hangedStatusSyncRatio*100*(100/60):0):hangedStatusSyncRatio*100*(100/60)}
+                      // text={"test"}
+                      strokeWidth={3.5}
+                      styles={buildStyles({
+                        pathColor: "rgba(206,144,0,0.9)",
+                        trailColor:"rgba(255,0,0,0.5)",
+                        // strokeLinecap: "butt"
+                      })}>
+                      <CircularProgressbar
+                        value={lockedStatusCountdownRatio*100}
+                        // text={"test"}
+                        strokeWidth={3.5}
+                        styles={buildStyles({
+                          pathColor: "rgba(60,255,20,0.6)",
+                          trailColor:"transparent",
+                          // strokeLinecap: "butt"
+                        })} />
+                    </CircularProgressbarWithChildren>
+                  </div>
+                    <img className="harnessStatusPng" src={safetyHarnessStatus==0?unlockedPng:safetyHarnessStatus==1?hangedPng:lockedPng} />
+                    {/* <img className="harnessStatusPng" src={lockedPng} /> */}
+                </div>
+                <div className="idleContainer">
+                  <div className="harnessIdle">
+                    {!(stableLock&&stableHarness)?lockedStatusCountdown!=3?lockedStatusCountdown:"":"Idle"}
+                  </div>
+                </div>
+                <div className="mpuContainer">
+                  <MpuStatus mpu="Hook" connected={connectedLock} direction={directionLock} stable={stableLock} />
+                  <MpuStatus mpu="Harness" connected={connectedHarness} direction={directionHarness} stable={stableHarness} />
+                </div>
             </div>
-            <div className="safetyHarnessDisconnected">
+            {/* <div className="safetyHarnessDisconnected">
               <SafetyHarnessStatus mpuNo={2} mpuId={"LA-EP02-02"} connected={false} statusId={0} idle={false} />
               <div className="mpuContainer">
                 <MpuStatus mpu="Hook" connected={false} direction={0} stable={false} />
@@ -309,7 +395,8 @@ const SafetyHarnessPanel = () => {
                 <MpuStatus mpu="Hook" connected={false} direction={0} stable={false} />
                 <MpuStatus mpu="Harness" connected={false} direction={0} stable={false} />
               </div>
-            </div>
+            </div> */}
+            
           </div>
     )
 }
