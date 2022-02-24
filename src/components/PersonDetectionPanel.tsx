@@ -88,6 +88,7 @@ const PersonDetectionPanel = () => {
                 <div className="personCount">{personCount}</div>
             </div>
             <div className={personCount==0?"platformStatusEmpty":personCount<=4?"platformStatusSafe":"platformStatusOverweight"}><b>{personCount==0?"Empty":personCount<=4?"Safe":"Overweight"}</b></div>
+            {personCount!=0?<div className="personDetected"><b>Person Detected: {personCount}</b></div>:<></>}
         </div>
     </div>
   )

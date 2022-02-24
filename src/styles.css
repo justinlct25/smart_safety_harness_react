@@ -123,6 +123,7 @@ html {
 }
 
 .personDetectionContainer {
+    position: relative;
     width: 50%;
     background: rgba(61, 61, 61, 0.623);
     border-radius: 20px;
@@ -376,4 +377,50 @@ img {
     left: 50%;
     transform: translate(-50%, -50%);
     width: 350px;
+}
+
+.safetyHarnessList {
+    display: flex;
+    flex-direction: column;
+    /* padding: 10px; */
+}
+
+.safetyHarnessBrief {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+    height: 30px;
+    padding: 20px;
+    align-items: center;
+    background-color: #2a3f8363;
+    color: white;
+    border-radius: 20px;
+    box-shadow: var(--boxShadow);
+    margin: 0px 0px 10px 10px;
+}
+
+.safetyHarnessBriefDisconnected {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 200px;
+    height: 30px;
+    padding: 20px;
+    align-items: center;
+    background-color: #2a2f38;
+    color: white;
+    border-radius: 20px;
+    box-shadow: var(--boxShadow);
+    margin: 0px 0px 10px 10px;
+    opacity: 0.4;
+}
+
+.personDetected {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    /* color: #2a3f83 */
+    color: cyan
 }

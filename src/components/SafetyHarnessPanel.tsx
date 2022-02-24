@@ -336,66 +336,63 @@ const SafetyHarnessPanel = () => {
     return (
         <div className="safetyHarnessContainer">
             <div className="safetyHarnessInfo"><b>Safety Harness Status</b></div>
-            <div className="safetyHarness" >
-            {/* <div className={!(connectedLock||connectedHarness)?"safetyHarnessDisconnected":
-                            safetyHarnessStatus==SAFETY_HARNESS_STATUS["UNLOCKED"]?"safetyHarnessUnlocked":
-                            safetyHarnessStatus==SAFETY_HARNESS_STATUS["HANGED"]?"safetyHarnessHanged":
-                            "safetyHarnessLocked"}> */}
-                <div className="safetyHarnessFlex">
-                    <SafetyHarnessStatus mpuNo={1} mpuId={"LA-EP02-01"} connected={connectedLock&&connectedHarness} statusId={safetyHarnessStatus} idle={stableLock&&stableHarness} />
+              <div className="safetyHarnessFlex">
+                <div className="safetyHarness" >
+                {/* <div className={!(connectedLock||connectedHarness)?"safetyHarnessDisconnected":
+                                safetyHarnessStatus==SAFETY_HARNESS_STATUS["UNLOCKED"]?"safetyHarnessUnlocked":
+                                safetyHarnessStatus==SAFETY_HARNESS_STATUS["HANGED"]?"safetyHarnessHanged":
+                                "safetyHarnessLocked"}> */}
+                    <div className="safetyHarnessFlex">
+                        <SafetyHarnessStatus mpuNo={1} mpuId={"LA-EP02-01"} connected={connectedLock&&connectedHarness} statusId={safetyHarnessStatus} idle={stableLock&&stableHarness} />
+                    </div>
+                    <div className={safetyHarnessStatus==1?"harnessStatusHanged":safetyHarnessStatus==2?"harnessStatusLocked":"harnessStatusUnlocked"}>
+                        <b>{connectedLock&&connectedHarness?HarnessStatus[safetyHarnessStatus]:"Disconnected"}</b>
+                    </div>
+                    <div className="safetyHarnessStatus">
+                      <div className="circularContainer">
+                        <CircularProgressbarWithChildren
+                          value={safetyHarnessStatus!=SAFETY_HARNESS_STATUS["HANGED"]?(hangedStatusMoveRatio!=0?hangedStatusSyncRatio*100*(100/60):0):hangedStatusSyncRatio*100*(100/60)}
+                          // text={"test"}
+                          strokeWidth={3.5}
+                          styles={buildStyles({
+                            pathColor: "rgba(206,144,0,0.9)",
+                            trailColor:"rgba(255,0,0,0.5)",
+                            // strokeLinecap: "butt"
+                          })}>
+                          <CircularProgressbar
+                            value={lockedStatusCountdownRatio*100}
+                            // text={"test"}
+                            strokeWidth={3.5}
+                            styles={buildStyles({
+                              pathColor: "rgba(60,255,20,0.6)",
+                              trailColor:"transparent",
+                              // strokeLinecap: "butt"
+                            })} />
+                        </CircularProgressbarWithChildren>
+                      </div>
+                        <img className="harnessStatusPng" src={safetyHarnessStatus==0?unlockedPng:safetyHarnessStatus==1?hangedPng:lockedPng} />
+                        {/* <img className="harnessStatusPng" src={lockedPng} /> */}
+                    </div>
+                    <div className="idleContainer">
+                      <div className="harnessIdle">
+                        {!(stableLock&&stableHarness)?lockedStatusCountdown!=3?lockedStatusCountdown:"":"Idle"}
+                      </div>
+                    </div>
+                    <div className="mpuContainer">
+                      <MpuStatus mpu="Hook" connected={connectedLock} direction={directionLock} stable={stableLock} />
+                      <MpuStatus mpu="Harness" connected={connectedHarness} direction={directionHarness} stable={stableHarness} />
+                    </div>
                 </div>
-                <div className={safetyHarnessStatus==1?"harnessStatusHanged":safetyHarnessStatus==2?"harnessStatusLocked":"harnessStatusUnlocked"}>
-                    <b>{connectedLock&&connectedHarness?HarnessStatus[safetyHarnessStatus]:"Disconnected"}</b>
-                </div>
-                <div className="safetyHarnessStatus">
-                  <div className="circularContainer">
-                    <CircularProgressbarWithChildren
-                      value={safetyHarnessStatus!=SAFETY_HARNESS_STATUS["HANGED"]?(hangedStatusMoveRatio!=0?hangedStatusSyncRatio*100*(100/60):0):hangedStatusSyncRatio*100*(100/60)}
-                      // text={"test"}
-                      strokeWidth={3.5}
-                      styles={buildStyles({
-                        pathColor: "rgba(206,144,0,0.9)",
-                        trailColor:"rgba(255,0,0,0.5)",
-                        // strokeLinecap: "butt"
-                      })}>
-                      <CircularProgressbar
-                        value={lockedStatusCountdownRatio*100}
-                        // text={"test"}
-                        strokeWidth={3.5}
-                        styles={buildStyles({
-                          pathColor: "rgba(60,255,20,0.6)",
-                          trailColor:"transparent",
-                          // strokeLinecap: "butt"
-                        })} />
-                    </CircularProgressbarWithChildren>
+                <div className="safetyHarnessList">
+                  <div className="safetyHarnessBrief">
+                    Harness 1
                   </div>
-                    <img className="harnessStatusPng" src={safetyHarnessStatus==0?unlockedPng:safetyHarnessStatus==1?hangedPng:lockedPng} />
-                    {/* <img className="harnessStatusPng" src={lockedPng} /> */}
+                  <div className="safetyHarnessBriefDisconnected">Harness 2</div>
+                  <div className="safetyHarnessBriefDisconnected">Harness 3</div>
+                  <div className="safetyHarnessBriefDisconnected">Harness 4</div>
+
                 </div>
-                <div className="idleContainer">
-                  <div className="harnessIdle">
-                    {!(stableLock&&stableHarness)?lockedStatusCountdown!=3?lockedStatusCountdown:"":"Idle"}
-                  </div>
-                </div>
-                <div className="mpuContainer">
-                  <MpuStatus mpu="Hook" connected={connectedLock} direction={directionLock} stable={stableLock} />
-                  <MpuStatus mpu="Harness" connected={connectedHarness} direction={directionHarness} stable={stableHarness} />
-                </div>
-            </div>
-            {/* <div className="safetyHarnessDisconnected">
-              <SafetyHarnessStatus mpuNo={2} mpuId={"LA-EP02-02"} connected={false} statusId={0} idle={false} />
-              <div className="mpuContainer">
-                <MpuStatus mpu="Hook" connected={false} direction={0} stable={false} />
-                <MpuStatus mpu="Harness" connected={false} direction={0} stable={false} />
               </div>
-            </div>
-            <div className="safetyHarnessDisconnected">
-              <SafetyHarnessStatus mpuNo={3} mpuId={"LA-EP02-03"} connected={false} statusId={0} idle={false} />
-              <div className="mpuContainer">
-                <MpuStatus mpu="Hook" connected={false} direction={0} stable={false} />
-                <MpuStatus mpu="Harness" connected={false} direction={0} stable={false} />
-              </div>
-            </div> */}
             
           </div>
     )
