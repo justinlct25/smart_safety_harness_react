@@ -11,6 +11,7 @@ const HarnessStatus:any = {
     1: "Hanged on Person",
     2: "Locked",
 }
+//
 
 const SafetyHarnessStatus = (props: IHarnessStatus) => {
 
